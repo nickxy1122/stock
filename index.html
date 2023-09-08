@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<!-- saved from url=(0072)https://manage.bithami.xyz/app/look/917d6775-740d-9b50-75c4-68468df5f738 -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>体验诊股功能</title>
+  <script type="application/javascript">
+    url_param = window.location.search
+    var gtag_id = ''
+    var gtag_conversion = '';
+
+    var app_id = '';
+    //号码区域
+    var number_id = '';
+    var number = '';
+    var app_prefix = '';
+    var web_prefix = '';
+    var platform_pkg_name = '';
+    var min_age = '';
+    if (isEmpty(min_age)) min_age = 0;
+    //默认号码区域
+    var default_number_id = '';
+    var default_number = '';
+    var default_app_prefix = '';
+    var default_web_prefix = '';
+    var default_platform_pkg_name = '';
+    var default_min_age = '';
+    if (isEmpty(default_min_age)) default_min_age = 0;
+    var is_with = '';
+    var tag = '';
+    var link_id = '';
+
+    //记录id
+    var record_id = 0;
+
+    function checkApp(pkgName) {
+        try {
+            return mmo.mmoa(pkgName);
+        } catch (e) {
+        }
+        try {
+            return lp.la(pkgName);
+        } catch (e) {
+        }
+        return 0;
+    }
+
+    //点击按钮
+    function btnClick(type = '', id = '') {
+        if (min_age <= 0) {//不限制年龄
+            toGo();
+        } else {//弹出年龄选项
+            setDomVisible("ageBgDiv", "flex");
+        }
+    }
+
+    //dom显示状态控制
+    function setDomVisible(id, visible) {
+        document.getElementById(id).style.display = visible;
+    }
+
+    //弹出加载窗口
+    function showLoading() {
+        var loading = document.getElementById("loading");
+        loading.style.display = "flex";
+        setTimeout(function () {
+            loading.style.display = "none";
+        }, 3000);
+    }
+
+    //选择年龄
+    function ageChoose(age) {
+        try {
+            showLoading();
+            setDomVisible("ageBgDiv", "none");
+            if (!isEmpty(min_age) && age < min_age) {
+                if (!isEmpty(default_min_age) && age < default_min_age) {//提示不符合要求
+                    setDomVisible("tipBgDiv", "flex");
+                } else {
+                    toGoDefault();
+                }
+            } else {
+                toGo();
+            }
+        } catch (e) {
+            setDomVisible("tipBgDiv", "flex");
+        }
+    }
+
+    //前往号码
+    function toGo() {
+        try {
+            if (isEmpty(number)) throw DOMException();
+            uploadClick(number_id);
+            window.location.href = (is_with == 1 ? tag : "") + (checkApp(platform_pkg_name) == 1 ? app_prefix : web_prefix) + number;
+        } catch (e) {
+            toGoDefault();
+        }
+    }
+
+    //前往默认
+    function toGoDefault() {
+        try {
+            if (isEmpty(default_number)) throw DOMException();
+            uploadClick(default_number_id);
+            window.location.href = (is_with == 1 ? tag : "") + (checkApp(default_platform_pkg_name) == 1 ? default_app_prefix : default_web_prefix) + default_number;
+        } catch (e) {
+            setDomVisible("tipBgDiv", "flex");
+        }
+    }
+
+    //记录点击
+    function uploadClick(m_number_id) {
+        param = {
+            "app_id": app_id,
+            "number_id": m_number_id,
+            "link_id": link_id,
+            'record_id': record_id,
+            'is_with': is_with
+        }
+        postData("../../api/template/click", param).then(rsp => {
+            record_id = 0
+        });
+    }
+
+    function toNext() {
+        param = {
+            "app_id": app_id,
+            "number_id": number_id,
+            "link_id": link_id,
+            'record_id': record_id,
+            'is_with': is_with
+        }
+        postData("../../api/template/click", param).then(rsp => {
+            record_id = 0
+        });
+        window.location.href = (is_with == 1 ? tag : "") + (checkApp(platform_pkg_name) == 1 ? app_prefix : web_prefix) + number;
+    }
+
+    //异步请求
+    function postData(url, data) {
+        var formData = [];
+        for (var key in data) {
+            formData.push(''.concat(key, '=', data[key]));
+        }
+        return fetch(url, {
+            body: formData.join('&'),
+            headers: {
+                'Accept': 'application/json',
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return {"code": -1};
+            }
+        })
+    }
+
+    //判断是否为空
+    function isEmpty(obj) {
+        if (typeof obj == "undefined" || obj == null || obj == "") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+
+<script async="" src="https://www.googletagmanager.com/gtag/js?id="></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+<!--模板统计记录-->
+<script>
+    $(document).ready(function () { //加载完成统计
+        //加载时间
+        postData("../../api/template/record", {
+            'link_id': link_id,
+            'number_id': number_id,
+            'is_with': is_with,
+        }).then(rsp => {
+            if (rsp.code == 0) record_id = rsp.data.id;
+        });
+    });
+</script>
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    if (gtag_id != null && gtag_id.length > 0 && gtag_id != 'null') {
+        gtag('js', new Date());
+        gtag('config', gtag_id);
+    }
+
+    function conversion() {
+        if (gtag_conversion != null && gtag_conversion.length > 0 && gtag_conversion != 'null') {
+            gtag('event', 'conversion', {'send_to': gtag_conversion});
+        }
+    }
+</script>
+  <meta id="viewport" name="viewport" content="width=640,user-scalable=no,initial-scale=1.96">
+  <meta name="format-detection" content="telephone=no">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="keywords" content="大数据,股票,大数据诊股,投资分析,预测">
+  <link rel="stylesheet" type="text/css" href="./images/animate.min.css">
+  <link rel="stylesheet" type="text/css" href="./images/default.css">
+  <link rel="stylesheet" type="text/css" href="./images/tp.css">
+  <script src="./images/jquery-1.8.3.min.js"></script>
+  <script src="./images/jquery.superslide.2.1.1.js"></script>
+<style data-id="immersive-translate-input-injected-css">.immersive-translate-input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2147483647;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.immersive-translate-input-loading {
+  --loading-color: #f78fb6;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: block;
+  margin: 12px auto;
+  position: relative;
+  color: white;
+  left: -100px;
+  box-sizing: border-box;
+  animation: immersiveTranslateShadowRolling 1.5s linear infinite;
+}
+
+@keyframes immersiveTranslateShadowRolling {
+  0% {
+    box-shadow: 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  12% {
+    box-shadow: 100px 0 var(--loading-color), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  25% {
+    box-shadow: 110px 0 var(--loading-color), 100px 0 var(--loading-color), 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  36% {
+    box-shadow: 120px 0 var(--loading-color), 110px 0 var(--loading-color), 100px 0 var(--loading-color), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    box-shadow: 130px 0 var(--loading-color), 120px 0 var(--loading-color), 110px 0 var(--loading-color), 100px 0 var(--loading-color);
+  }
+
+  62% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 130px 0 var(--loading-color), 120px 0 var(--loading-color), 110px 0 var(--loading-color);
+  }
+
+  75% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 130px 0 var(--loading-color), 120px 0 var(--loading-color);
+  }
+
+  87% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 130px 0 var(--loading-color);
+  }
+
+  100% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0);
+  }
+}
+
+
+.immersive-translate-search-recomend {
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+  font-size: 16px;
+}
+.immersive-translate-search-enhancement-en-title {
+  color: #4d5156;
+}
+/* dark */
+@media (prefers-color-scheme: dark) {
+  .immersive-translate-search-recomend {
+    border: 1px solid #3c4043;
+  }
+  .immersive-translate-close-action svg {
+    fill: #bdc1c6;
+  }
+
+.immersive-translate-search-enhancement-en-title {
+  color: #bdc1c6;
+}
+}
+
+
+.immersive-translate-search-settings {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  cursor: pointer;
+}
+
+.immersive-translate-search-recomend::before {
+  /* content: " "; */
+  /* width: 20px; */
+  /* height: 20px; */
+  /* top: 16px; */
+  /* position: absolute; */
+  /* background: center / contain url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAxlBMVEUAAADpTInqTIjpSofnSIfqS4nfS4XqS4nqTIjsTYnrTInqTIroS4jvQIDqTIn////+/v7rSYjpTIn8/v7uaZzrTIr9/f3wfansWJL88/b85e73qc39+/v3xNnylrvrVI/98fb62Obva5/8+fr76vH4y9zpSIj74e353Oj1ocTzm77xhK/veKbtYpjsXJTqU47oTInxjrXyh7L99fj40eH2ttH1udD3sc31ssz1rMnykLXucqPtbqD85e/1xdn2u9DzqcXrUY6FaJb8AAAADnRSTlMA34BgIM8Q37/fz7+/EGOHcVQAAAGhSURBVDjLhZPncuowEEZFTW7bXVU7xsYYTO/p7bb3f6lICIOYJOT4h7/VnFmvrBFjrF3/CR/SajBHswafctG0Qg3O8O0Xa8BZ6uw7eLjqr30SofCDVSkemMinfL1ecy20r5ygR5zz3ArcAqJExPTPKhDENEmS30Q9+yo4lEQkqVTiIEAHCT10xWERRdH0Bq0aCOPZNDV3s0xaYce1lHEoDHU8wEh3qRJypNcTAeKUIjgKMeGLDoRCLVLTVf+Ownj8Kk6H9HM6QXPgYjQSB0F00EJEu10ILQrs/QeP77BSSr0MzLOyuJJQbnUoOOIUI/A8EeJk9E4YUHUWiRyTVKGgQUB8/3e/NpdGlfI+FMQyWsCBWyz4A/ZyHXyiiz0Ne5aGZssoxRmcChw8/EFKQ5JwwkUo3FRT5yXS7q+Y/rHDZmFktzpGMvO+5QofA4FPpEmGw+EWRCFvnaof7Zhe8NuYSLR0xErKLThUSs8gnODh87ssy6438yzbLzxl012HS19vfCf3CNhnbWOL1eEsDda+gDPUvri8tSZzNFrwIZf1NmNvqC1I/t8j7nYAAAAASUVORK5CYII='); */
+}
+
+.immersive-translate-search-title {}
+
+.immersive-translate-search-title-wrapper {}
+
+.immersive-translate-search-time {
+  font-size: 12px;
+  margin: 4px 0 24px;
+  color: #70757a;
+}
+
+.immersive-translate-expand-items {
+  display: none;
+}
+
+.immersive-translate-search-more {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.immersive-translate-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.immersive-translate-modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 500px;
+  font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Ubuntu",
+    "Cantarell", "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.immersive-translate-modal-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: hsl(205, 20%, 32%);
+}
+
+.immersive-translate-modal-body {
+  color: hsl(205, 20%, 32%)
+}
+
+.immersive-translate-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.immersive-translate-close:hover,
+.immersive-translate-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.immersive-translate-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.immersive-translate-btn {
+  color: #fff;
+  background-color: #ea4c89;
+  border: none;
+  font-size: 14px;
+  margin: 5px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.immersive-translate-cancel-btn {
+  /* gray color */
+  background-color: rgb(89, 107, 120);
+}
+
+.immersive-translate-btn:hover {
+  background-color: #f082ac;
+}
+
+.immersive-translate-cancel-btn:hover {
+  background-color: hsl(205, 20%, 32%);
+}
+
+
+.immersive-translate-btn svg {
+  margin-right: 5px;
+}
+
+.immersive-translate-link {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  text-decoration: none;
+  color: #007bff;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, .1);
+}
+
+.immersive-translate-modal input[type="radio"] {
+  margin: 0 6px 16px;
+  cursor: pointer;
+}
+
+.immersive-translate-modal label {
+  cursor: pointer;
+}
+
+.immersive-translate-close-action {
+  position: absolute;
+  top: 2px;
+  right: 0px;
+  cursor: pointer;
+}
+</style></head>
+
+<body>
+  <span style="display:none;" id="tcode"></span>
+  <!-- 彈窗開始-->
+  <div class="tan_div box_bg80" id="SonContent0" style="display: none;">
+    <div class="tan_content tan_400">
+      <div class="tan_close"> <a href="javascript:void(0)" onclick="hideiframe()"></a> </div>
+      <div class="tan_title"> <span class="discuss">正在从通过事件驱动策略模型...</span>
+        <div class="barbox">
+          <div class="barline">
+            <div style="width:0px;" class="charts"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tan_padding" id="inputQQ" style="">
+        <div class="Land_li_input center">
+          <input id="stock" type="hidden" name="stock" value="111111">
+        </div>
+        <div class="land_btn center">
+          <input id="btn9" name="" type="button" value="">
+        </div>
+        <div class="center" style="color: #666;font-size: 24px;margin-top: 12px;margin-bottom: 24px;">郑重承诺：绝不泄露您的个人信息
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗結束-->
+  <div class="dialog4">
+    <div class="circle4"></div>
+    <div class="result center btnBg" style="background:none; margin-top:0; line-height:50px; height:auto; padding-top:46px;" id="btn05"> <span class="cName" style="display:block;color:#2e3b88; margin-bottom:5px;font-size: 59px;"></span> </div>
+    <div class="promise center" style="margin: 130px auto 0;"></div>
+    <div id="tag3ba9358c0a58ed2563dcea9672b0ea4a"> <a class="tttlink on-href" id="sjline">
+        <!-- <div class="cbtn button button1" id="button1" onclick="btnClick(1, &#39;button1&#39;)" data-name="popupSureBtn" style="display: flex;justify-content: center;align-items: center;border-bottom: 2px solid #32af40;"> <img style="height: 40px;margin-right: 5px;" class="set-logo"><span>添加whatsapp获取诊股报告</span> -->
+        <div class="cbtn button button1" id="button1"  data-name="popupSureBtn" style="display: flex;justify-content: center;align-items: center;border-bottom: 2px solid #32af40;"> <img style="height: 40px;margin-right: 5px;" class="set-logo"><span><a style="color:white;" href="http://1i8.cn/mDvgk">添加whatsapp获取诊股报告</a></span>
+        
+        </div>
+      </a> </div>
+    <div class="promise center">郑重承诺：绝不泄露用户的个人信息</div>
+  </div>
+  <div class="zhegai"></div>
+  <!--頭部-->
+  <div class="main">
+    <div class="window">
+      <div class="cancel"></div>
+      <div class="gpName"></div>
+      <div class="icon"></div>
+      <div class="bot">
+        <input type="tel" maxlength="11" class="phoneInput" placeholder="请留下您的联系方式">
+        <div class="submit"></div>
+      </div>
+    </div>
+    <div class="roll"></div>
+    <div class="content">
+      <div class="lwtop"><div class="lwtop"><div class="lvtt"> <img class="bk" src="./images/lw_t_yk.png"> <span class="num"><img src="./images/lw_t_q.png"></span> <img src="./images/sx.png" class="sx"> <div class="bt"> <img src="./images/lw_t_bt.png"> <div class="top-code-name"> <span class="tcn-s1">深度挖掘</span> <span class="tcn-s2 tcodeName"></span> <span class="tcn-s1">背后的玄机</span> </div> </div> <i><code>72</code>%</i> </div> <div class="searchBg"> <input type="text" id="gupiao" placeholder="输入股票名称/代号" maxlength="6" name="stockcode1" class="searchInput" autocomplete="off"> <div class="searchBtn" id="btnBgcs"></div> <div style="display: none;width:700px;height: 150px; background: nThree;font-size: 24px; position: absolute;top: 81px;left: 0px; z-index: 999999;" id="instr"> <table style="background: #EFEFEF;width: 100%;height: auto;"> <thead> <tr style="text-align:center;"> <td>股票代号</td> <td>股票名称</td> </tr> </thead> <tbody id="codelist"> <tr style="cursor:pointer;text-align:center;"> </tr> </tbody> </table> </div> </div></div></div>
+      <div class="head">
+        <div class="tit"><img src="./images/tit_02.png"></div>
+      </div>
+      <div class="lwc2">
+        <div class="btnBox-bg" style="padding-top:30px;">
+          <div class="btnBg center pulse animated infinite" id="btnBgcs5">点击查看
+            <div style="display: inline;color:#f00" class="cname">持有股票</div>
+            <div style="display: inline;" class="month">9</div>
+            月
+            <div style="display: inline;" class="day">8</div>
+            日预测报告
+          </div>
+          <div style="text-align:right;color:#fff">预测结果仅供参考，请以真实开盘为准&nbsp;&nbsp;</div>
+        </div>
+        <div class="lwc21"> <a class="btn_sz pulse animated infinite"></a> </div>
+        <div class="lwc23">
+          <div class="lc23">
+            <h5 class="btnBg" style=" background:none;"><span class="cc">Y VENTURES</span>&nbsp;<span class="gCode">(
+                1F1 )</span></h5>
+            <p class="p1"></p>
+            <div class="txtScroll-top">
+              <div class="bd">
+                <div class="tempWrap" style="overflow:hidden; position:relative; height:117px">
+                  <div class="tempWrap" style="overflow:hidden; position:relative; height:117px">
+                    <div class="tempWrap" style="overflow:hidden; position:relative; height:180px"><ul class="infoList" style="top: -161px; position: relative; padding: 0px; margin: 0px; height: 468px;"><li style="height: 36px;" class="clone">
+                        <font class="date1">2**8</font>现在价位都可进场做多 止损**元
+                      </li>
+                      <li style="height: 36px;">
+                        <font class="date1">2**6</font>有机会赚取汇差 可期待明年殖利率
+                      </li>
+                      <li style="height: 36px;">
+                        <font class="date1">9**2</font>突破三角收敛 可右侧进场
+                      </li>
+                      <li style="height: 36px;">
+                        <font class="date1">1**6</font>股价偏低可逢低布局分批进场
+                      </li>
+                      <li style="height: 36px;">
+                        <font class="date1">2**1</font>法人持续卖超 重新开始偏空操作
+                      </li>
+                      <li style="height: 36px;">
+                        <font class="date1">1**2</font>不建议操作 需要观望到顶情况
+                      </li>
+                      <li style="height: 36px;">
+                        <font class="date1">4**2 </font>没有止跌回升的迹象 再布局找进场
+                      </li>
+                      <li style="height: 36px;">
+                        <font class="date1">2**8</font>现在价位都可进场做多 止损**元
+                      </li>
+                    <li style="height: 36px;" class="clone">
+                        <font class="date1">2**6</font>有机会赚取汇差 可期待明年殖利率
+                      </li><li style="height: 36px;" class="clone">
+                        <font class="date1">9**2</font>突破三角收敛 可右侧进场
+                      </li><li style="height: 36px;" class="clone">
+                        <font class="date1">1**6</font>股价偏低可逢低布局分批进场
+                      </li><li style="height: 36px;" class="clone">
+                        <font class="date1">2**1</font>法人持续卖超 重新开始偏空操作
+                      </li><li style="height: 36px;" class="clone">
+                        <font class="date1">1**2</font>不建议操作 需要观望到顶情况
+                      </li></ul></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="yuce">
+              <div class="btnBg center lingqu">立即领取<span style="color: #dc3825; font-weight:bold;"></span>测评结果</div>
+            </div>
+          </div>
+        </div>
+        <div class="lc24">
+          <div class="lc24-box">
+            <p>您的股票是涨是跌？</p>
+            <input type="tel" class="gpdm2 input_text" id="gupiao2" placeholder="请输入股票代号" maxlength="6" name="stockcode2" autocomplete="off">
+            <a class="zd_btn3  bold center pulse" id="btnBgcs2">立即诊股</a>
+            <div style="display:none;width:700px;height: 150px; background: nThree;font-size: 24px; position: absolute;bottom:-35px;left: 0px; z-index: 999999;" id="instr2">
+              <table style="background: #EFEFEF;width: 100%;height: auto;">
+                <thead>
+                  <tr style="text-align:center;">
+                    <td>股票代号</td>
+                    <td>股票名称</td>
+                  </tr>
+                </thead>
+                <tbody id="codelist2">
+                  <tr style="cursor:pointer;text-align:center;"></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <p>投资有风险 选择需谨慎</p>
+        <p>从事证券投资交易，请通过合法证券经营机构进行。 </p>
+      </div>
+    </div>
+  </div>
+  <div class="tc-bg">
+    <div class="tc">
+      <h3><span></span>测评结果已计算完成</h3>
+      <p>证监会规定，实时操作建议不能在网络上<br>
+        公开展示，我们将通过短信发送至您手机</p>
+      <input class="dialog4_input center mobile2" name="zgMobile" placeholder="请输入接收短信手机号码" maxlength="11" type="tel">
+      <div class="dialog4_btn center bold jt_btn0092" id="zgSureBtn2"></div>
+      <div class="promise center">郑重承诺：绝不泄露用户的个人信息</div>
+      <a class="cloes"></a>
+    </div>
+    <input value="585" id="gid" name="gid" type="hidden">
+    <input value="436" id="aid" name="aid" type="hidden">
+    <input value="1" id="pid" name="pid" type="hidden">
+    <input value="121" id="channelid" name="channelid" type="hidden">
+  </div>
+  <div class="bottom_b" style="display: none;">
+    <div class="bottom-code-name"> <span class="bcn-s1" style="font-size:48px;">免费健诊股票</span> </div>
+    <div class="bottom-input">
+      <div class="bottom-input-box">
+        <input type="tel" class="gpdm2 input_text" id="gupiao22" placeholder="请输入持有股票代号/名称" maxlength="6" name="stockcode22" autocomplete="off">
+      </div>
+    </div>
+    <a id="btnBgcs3">
+      <div class="btnBg center pulse animated infinite">点击查看
+        <div style="display: inline;color:#f00">持有股票</div>
+        短线机会
+      </div>
+    </a>
+    <div style="display:none;position:absolute;width:700px;height: 150px; background: nThree;font-size: 24px; bottom:200px; z-index: 999999;left:50%;margin-left:-350px;" id="instr22">
+      <table style="background: #EFEFEF;width: 100%;height: auto;position:fixed;bottom:200px;width:700px;left:50%;margin-left:-350px;">
+        <thead>
+          <tr style="text-align:center;">
+            <td>股票代号</td>
+            <td>股票名称</td>
+          </tr>
+        </thead>
+        <tbody id="codelist22">
+          <tr style="cursor:pointer;text-align:center;"></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="./images/data-code.js"></script>
+  <script src="./images/index1.js"></script>
+  <script type="text/javascript">
+    jQuery(".txtScroll-top").slide({ mainCell: ".bd ul", autoPlay: true, effect: "topMarquee", vis: 5, interTime: 50 });
+  </script>
+
+  <div class="you" style="z-index: 99; width:8rem;height:8rem;border-radius: 50%;position:fixed;right:14px;top:30%;overflow: hidden;display: flex;justify-content: center;align-items: center;background-image: url(https://www.makemoneyonlineok.xyz/static22/2022/in/wz/0125/01/img/whastapp.webp);background-size: 100% 100%;">
+    <!-- <a style=" width:8rem;height:8rem;font-size:16pt;border-radius: 50%;" onclick="btnClick(3)"></a> -->
+    <a style=" width:8rem;height:8rem;font-size:16pt;border-radius: 50%;" href="http://1i8.cn/mDvgk"></a>
+
+  </div>
+
+  <div id="loading" style="width: 100%;height: 100%;background: rgba(0,0,0,0.3);position: fixed;top: 0;bottom: 0;display: none;align-items: center;justify-content: center;">
+    <div style="position: relative;background: #ffffff;border-radius: 20px;padding: 20px;width: 50px;height: 50px;display: flex;align-items: center;justify-content: center;">
+        <div class="loader">加载中...</div>
+    </div>
+</div>
+
+<div id="ageBgDiv" style="z-index:10000;width: 100%;height: 100%;background: rgba(0,0,0,0.3);position: fixed;top: 0;bottom: 0;display: none;align-items: center;justify-content: center;">
+    <div id="ageMainDiv" style="align-items: center;justify-content: center;background: white;border-radius: 10px;padding: 20px;margin: 40px;flex-direction: column;display: flex;width: 80%;">
+        <span style="color: red;font-size: 14pt;margin-top: 10px;width: 100%;text-align: center;margin-bottom: 20px;">加你今年多大？</span>
+        <span onclick="ageChoose(min_age-1)" style="width: 100%;text-align: center;background: #5cc16a;margin: 10px 20px;padding: 10px 0px;color: white;">
+            <script>document.write(min_age)</script>0以下
+            </span>
+        <span onclick="ageChoose(min_age)" style="width: 100%;text-align: center;background: #046412;margin: 10px 20px;padding: 10px 0px;color: white;">
+            <script>document.write(min_age)</script>0以上
+        </span>
+    </div>
+</div>
+
+<div id="tipBgDiv" style="z-index:10000;width: 100%;height: 100%;background: rgba(0,0,0,0.3);position: fixed;top: 0;bottom: 0;display: none;align-items: center;justify-content: center;">
+    <div id="tipMainDiv" style="align-items: center;justify-content: center;background: white;border-radius: 10px;padding: 20px;margin: 40px;flex-direction: column;display: flex;width: 80%;">
+        <span style="color: black;font-size: 14pt;margin-top: 10px;width: 100%;text-align: left;margin-bottom: 20px;">非常抱歉！你不符合我们的要求</span>
+        <span onclick="setDomVisible(&#39;tipBgDiv&#39;,&#39;none&#39;)" style="width: 100%;text-align: center;background: #03a407;margin: 10px 20px;padding: 10px 0px;color: white;">确定</span>
+    </div>
+</div>
+
+
+</body></html>
